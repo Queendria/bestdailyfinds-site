@@ -1,1 +1,162 @@
-hello
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Best Daily Finds</title>
+  <style>
+    :root { --bg:#0b0b12; --card:rgba(255,255,255,.08); --text:#fff; --muted:rgba(255,255,255,.7); --border:rgba(255,255,255,.15); }
+    body{ margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial; background:radial-gradient(1200px 800px at 20% 20%, #5d2a7a 0%, transparent 60%), radial-gradient(900px 700px at 80% 30%, #1d4ed8 0%, transparent 55%), var(--bg); color:var(--text); }
+    .wrap{ max-width:900px; margin:0 auto; padding:48px 16px 80px; }
+    h1{ font-size:40px; margin:0 0 10px; letter-spacing:.2px; }
+    .sub{ color:var(--muted); margin:0 0 22px; line-height:1.5; }
+    .pill{ display:inline-block; padding:6px 10px; border:1px solid var(--border); border-radius:999px; color:var(--muted); font-size:12px; margin-bottom:14px; }
+    .grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:12px; margin-top:18px; }
+    .card{ border:1px solid var(--border); background:var(--card); border-radius:16px; padding:14px; backdrop-filter: blur(8px); }
+    .card h2{ font-size:16px; margin:0 0 10px; }
+    .items{ display:flex; flex-direction:column; gap:10px; }
+    .item{ display:flex; gap:12px; align-items:flex-start; padding:10px; border-radius:14px; border:1px solid var(--border); background:rgba(0,0,0,.18); }
+    .item img{ width:72px; height:72px; object-fit:cover; border-radius:12px; border:1px solid rgba(255,255,255,.12); background:#111; }
+    .item a{ color:#fff; text-decoration:none; }
+    .item a:hover{ text-decoration:underline; }
+    .meta{ color:var(--muted); font-size:12px; margin-top:4px; }
+    .topbar{ display:flex; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap; margin-top:10px;}
+    .btn{ display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:10px 14px; border-radius:999px; border:1px solid var(--border); background:rgba(255,255,255,.06); color:#fff; text-decoration:none; cursor:pointer; }
+    select{ padding:10px 14px; border-radius:999px; border:1px solid var(--border); background:rgba(0,0,0,.25); color:#fff; }
+    .footer{ margin-top:26px; color:var(--muted); font-size:12px; line-height:1.5; }
+    .err{ margin-top:14px; color:#ffd1d1; font-size:13px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="pill">Updated daily • curated picks</div>
+    <h1>Daily product picks</h1>
+    <p class="sub">Affiliate links may earn me a commission at no extra cost to you.</p>
+
+    <div class="topbar">
+      <div>
+        <a class="btn" href="./">Home</a>
+      </div>
+      <div>
+        <label class="meta" for="cat" style="display:block;margin-bottom:6px;">Choose a category</label>
+        <select id="cat"></select>
+      </div>
+    </div>
+
+    <div id="content" class="grid"></div>
+    <div id="error" class="err"></div>
+
+    <div class="footer">
+      Tip: add <code>?cat=best-deals</code> (or another category) to link directly to a list.
+    </div>
+  </div>
+
+<script>
+const CATEGORIES = [
+  { id:"best-deals", label:"Best Deals", file:"data/best-deals.json" },
+  { id:"gift-ideas", label:"Gift Ideas", file:"data/gift-ideas.json" },
+  { id:"home-essentials", label:"Home Essentials", file:"data/home-essentials.json" },
+  { id:"kitchen-gadgets", label:"Kitchen Gadgets", file:"data/kitchen-gadgets.json" },
+  { id:"beauty-picks", label:"Beauty Picks", file:"data/beauty-picks.json" },
+  { id:"pet-must-haves", label:"Pet Must-Haves", file:"data/pet-must-haves.json" }
+];
+
+const qs = new URLSearchParams(location.search);
+const catFromUrl = qs.get("cat");
+
+const sel = document.getElementById("cat");
+CATEGORIES.forEach(c=>{
+  const o=document.createElement("option");
+  o.value=c.id; o.textContent=c.label;
+  sel.appendChild(o);
+});
+
+function setUrlCat(id){
+  const u = new URL(location.href);
+  u.searchParams.set("cat", id);
+  history.replaceState({}, "", u);
+}
+
+sel.addEventListener("change", ()=> {
+  setUrlCat(sel.value);
+  loadCategory(sel.value);
+});
+
+async function loadCategory(id){
+  const errorEl = document.getElementById("error");
+  errorEl.textContent = "";
+
+  const cat = CATEGORIES.find(x=>x.id===id) || CATEGORIES[0];
+  sel.value = cat.id;
+
+  try {
+    const res = await fetch(cat.file + "?v=" + Date.now()); // cache-bust
+    if(!res.ok) throw new Error("Can't load " + cat.file + " (" + res.status + ")");
+    const data = await res.json();
+
+    render(cat.label, data.items || []);
+  } catch(e){
+    errorEl.textContent = "Error loading this category. Make sure the JSON file exists: " + (cat?.file || "") ;
+    render((cat && cat.label) ? cat.label : "Category", []);
+  }
+}
+
+function render(title, items){
+  const host = document.getElementById("content");
+  host.innerHTML = "";
+
+  const card = document.createElement("div");
+  card.className = "card";
+
+  const h2 = document.createElement("h2");
+  h2.textContent = title;
+  card.appendChild(h2);
+
+  const list = document.createElement("div");
+  list.className = "items";
+
+  if(!items.length){
+    const empty = document.createElement("div");
+    empty.className = "meta";
+    empty.textContent = "No items yet. (n8n can fill this later.)";
+    card.appendChild(empty);
+  } else {
+    items.slice(0, 30).forEach(it=>{
+      const row = document.createElement("div");
+      row.className = "item";
+
+      const img = document.createElement("img");
+      img.src = it.image || "";
+      img.alt = it.title || "item";
+      row.appendChild(img);
+
+      const box = document.createElement("div");
+
+      const a = document.createElement("a");
+      a.href = it.url || "#";
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      a.textContent = it.title || "View product";
+      box.appendChild(a);
+
+      const meta = document.createElement("div");
+      meta.className="meta";
+      meta.textContent = [it.price, it.note].filter(Boolean).join(" • ");
+      box.appendChild(meta);
+
+      row.appendChild(box);
+      list.appendChild(row);
+    });
+    card.appendChild(list);
+  }
+
+  host.appendChild(card);
+}
+
+// initial
+const startCat = CATEGORIES.some(c=>c.id===catFromUrl) ? catFromUrl : CATEGORIES[0].id;
+setUrlCat(startCat);
+loadCategory(startCat);
+</script>
+</body>
+</html>
