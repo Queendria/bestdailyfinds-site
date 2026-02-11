@@ -3,161 +3,373 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Best Daily Finds</title>
+  <title>Daily Product Picks</title>
+
   <style>
-    :root { --bg:#0b0b12; --card:rgba(255,255,255,.08); --text:#fff; --muted:rgba(255,255,255,.7); --border:rgba(255,255,255,.15); }
-    body{ margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial; background:radial-gradient(1200px 800px at 20% 20%, #5d2a7a 0%, transparent 60%), radial-gradient(900px 700px at 80% 30%, #1d4ed8 0%, transparent 55%), var(--bg); color:var(--text); }
-    .wrap{ max-width:900px; margin:0 auto; padding:48px 16px 80px; }
-    h1{ font-size:40px; margin:0 0 10px; letter-spacing:.2px; }
-    .sub{ color:var(--muted); margin:0 0 22px; line-height:1.5; }
-    .pill{ display:inline-block; padding:6px 10px; border:1px solid var(--border); border-radius:999px; color:var(--muted); font-size:12px; margin-bottom:14px; }
-    .grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:12px; margin-top:18px; }
-    .card{ border:1px solid var(--border); background:var(--card); border-radius:16px; padding:14px; backdrop-filter: blur(8px); }
-    .card h2{ font-size:16px; margin:0 0 10px; }
-    .items{ display:flex; flex-direction:column; gap:10px; }
-    .item{ display:flex; gap:12px; align-items:flex-start; padding:10px; border-radius:14px; border:1px solid var(--border); background:rgba(0,0,0,.18); }
-    .item img{ width:72px; height:72px; object-fit:cover; border-radius:12px; border:1px solid rgba(255,255,255,.12); background:#111; }
-    .item a{ color:#fff; text-decoration:none; }
-    .item a:hover{ text-decoration:underline; }
-    .meta{ color:var(--muted); font-size:12px; margin-top:4px; }
-    .topbar{ display:flex; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap; margin-top:10px;}
-    .btn{ display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:10px 14px; border-radius:999px; border:1px solid var(--border); background:rgba(255,255,255,.06); color:#fff; text-decoration:none; cursor:pointer; }
-    select{ padding:10px 14px; border-radius:999px; border:1px solid var(--border); background:rgba(0,0,0,.25); color:#fff; }
-    .footer{ margin-top:26px; color:var(--muted); font-size:12px; line-height:1.5; }
-    .err{ margin-top:14px; color:#ffd1d1; font-size:13px; }
+    :root{
+      --bg1:#6a2ca5;
+      --bg2:#0b5cff;
+      --card:#ffffff14;
+      --border:#ffffff2b;
+      --text:#ffffff;
+      --muted:#ffffffb8;
+      --shadow: 0 10px 35px rgba(0,0,0,.25);
+      --radius: 18px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--text);
+      background: radial-gradient(1200px 800px at 20% 20%, #9a52ff33, transparent 60%),
+                  linear-gradient(135deg, var(--bg1), var(--bg2));
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+    }
+    .wrap{
+      width:min(980px, 100%);
+      display:grid;
+      grid-template-columns: 1.1fr 1.9fr;
+      gap:22px;
+    }
+    @media (max-width: 860px){
+      .wrap{grid-template-columns: 1fr}
+    }
+
+    .panel{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius: var(--radius);
+      padding:20px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+    h1{
+      margin:0 0 6px;
+      font-size: 42px;
+      letter-spacing: .3px;
+    }
+    .pill{
+      display:inline-block;
+      padding:8px 12px;
+      border-radius: 999px;
+      border:1px solid var(--border);
+      background:#ffffff10;
+      color:var(--muted);
+      font-size: 13px;
+      margin-bottom:14px;
+    }
+    .sub{
+      margin:0 0 18px;
+      color:var(--muted);
+      line-height: 1.35;
+    }
+    .row{
+      display:flex;
+      gap:12px;
+      align-items:center;
+      flex-wrap:wrap;
+      margin:10px 0 14px;
+    }
+    select{
+      width: 260px;
+      max-width: 100%;
+      padding:12px 12px;
+      border-radius: 12px;
+      border:1px solid var(--border);
+      background:#0b0b0b26;
+      color:var(--text);
+      outline:none;
+    }
+    .btn{
+      padding:12px 14px;
+      border-radius: 12px;
+      border:1px solid var(--border);
+      background:#ffffff14;
+      color:var(--text);
+      cursor:pointer;
+    }
+    .btn:hover{ background:#ffffff1f; }
+
+    .listTitle{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom: 12px;
+    }
+    .listTitle h2{
+      margin:0;
+      font-size: 18px;
+      color: var(--text);
+    }
+    .hint{
+      margin:0;
+      color:var(--muted);
+      font-size: 13px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap:12px;
+    }
+    @media (max-width: 520px){
+      .grid{grid-template-columns: 1fr}
+    }
+
+    .card{
+      display:flex;
+      gap:12px;
+      align-items:center;
+      padding:12px;
+      border-radius: 16px;
+      border:1px solid var(--border);
+      background:#ffffff12;
+      box-shadow: 0 10px 25px rgba(0,0,0,.15);
+    }
+    .thumb{
+      width:60px;
+      height:60px;
+      border-radius: 12px;
+      background:#00000026;
+      overflow:hidden;
+      flex:0 0 auto;
+      border:1px solid #ffffff1f;
+    }
+    .thumb img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
+    .meta{min-width:0}
+    .title{
+      font-weight: 700;
+      margin:0;
+      font-size: 14px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .line{
+      margin:3px 0 0;
+      color:var(--muted);
+      font-size: 13px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .open{
+      margin-left:auto;
+      flex:0 0 auto;
+      text-decoration:none;
+      padding:10px 12px;
+      border-radius: 12px;
+      border:1px solid var(--border);
+      background:#ffffff10;
+      color:var(--text);
+      font-size: 13px;
+    }
+    .open:hover{ background:#ffffff1f; }
+
+    .empty{
+      padding:12px;
+      border-radius: 14px;
+      border:1px dashed #ffffff2b;
+      color: var(--muted);
+      background:#ffffff0a;
+    }
+    .err{
+      margin-top:10px;
+      color:#ffd0d0;
+      font-size:13px;
+      white-space: pre-wrap;
+    }
   </style>
 </head>
+
 <body>
   <div class="wrap">
-    <div class="pill">Updated daily • curated picks</div>
-    <h1>Daily product picks</h1>
-    <p class="sub">Affiliate links may earn me a commission at no extra cost to you.</p>
+    <section class="panel">
+      <div class="pill">Updated daily • curated picks</div>
+      <h1>Daily product picks</h1>
+      <p class="sub">Affiliate links may earn me a commission at no extra cost to you.</p>
 
-    <div class="topbar">
-      <div>
-        <a class="btn" href="./">Home</a>
-      </div>
-      <div>
-        <label class="meta" for="cat" style="display:block;margin-bottom:6px;">Choose a category</label>
+      <div class="row">
         <select id="cat"></select>
+        <button class="btn" id="reloadBtn">Reload</button>
       </div>
-    </div>
 
-    <div id="content" class="grid"></div>
-    <div id="error" class="err"></div>
+      <p class="hint">Tip: add <code>?cat=fitness-finds</code> to open a category directly.</p>
+      <div id="errorBox" class="err" style="display:none;"></div>
+    </section>
 
-    <div class="footer">
-      Tip: add <code>?cat=best-deals</code> (or another category) to link directly to a list.
-    </div>
+    <section class="panel">
+      <div class="listTitle">
+        <h2 id="catTitle">Choose a category</h2>
+        <span class="hint" id="count"></span>
+      </div>
+      <div id="grid" class="grid"></div>
+      <div id="empty" class="empty" style="display:none;">
+        No items yet. Your automation can fill this list later.
+      </div>
+    </section>
   </div>
 
-<script>
-const CATEGORIES = [
-  { id:"best-deals", label:"Best Deals", file:"data/best-deals.json" },
-  { id:"gift-ideas", label:"Gift Ideas", file:"data/gift-ideas.json" },
-  { id:"home-essentials", label:"Home Essentials", file:"data/home-essentials.json" },
-  { id:"kitchen-gadgets", label:"Kitchen Gadgets", file:"data/kitchen-gadgets.json" },
-  { id:"beauty-picks", label:"Beauty Picks", file:"data/beauty-picks.json" },
-  { id:"pet-must-haves", label:"Pet Must-Haves", file:"data/pet-must-haves.json" }
-  { id:"fitness-finds", label:"Fitness Finds", file:"data/fitness-finds.json" }
-];
+  <script>
+    // ✅ CATEGORIES (Fitness Finds est inclus)
+    const CATEGORIES = [
+      { id: "best-deals",       label: "Best Deals",       file: "data/best-deals.json" },
+      { id: "gift-ideas",       label: "Gift Ideas",       file: "data/gift-ideas.json" },
+      { id: "home-essentials",  label: "Home Essentials",  file: "data/home-essentials.json" },
+      { id: "kitchen-gadgets",  label: "Kitchen Gadgets",  file: "data/kitchen-gadgets.json" },
+      { id: "beauty-picks",     label: "Beauty Picks",     file: "data/beauty-picks.json" },
+      { id: "pet-must-haves",   label: "Pet Must-Haves",   file: "data/pet-must-haves.json" },
+      { id: "fitness-finds",    label: "Fitness Finds",    file: "data/fitness-finds.json" }
+    ];
 
-const qs = new URLSearchParams(location.search);
-const catFromUrl = qs.get("cat");
+    const $cat = document.getElementById("cat");
+    const $grid = document.getElementById("grid");
+    const $empty = document.getElementById("empty");
+    const $title = document.getElementById("catTitle");
+    const $count = document.getElementById("count");
+    const $errorBox = document.getElementById("errorBox");
+    const $reloadBtn = document.getElementById("reloadBtn");
 
-const sel = document.getElementById("cat");
-CATEGORIES.forEach(c=>{
-  const o=document.createElement("option");
-  o.value=c.id; o.textContent=c.label;
-  sel.appendChild(o);
-});
+    function showError(msg){
+      $errorBox.style.display = "block";
+      $errorBox.textContent = msg;
+    }
+    function clearError(){
+      $errorBox.style.display = "none";
+      $errorBox.textContent = "";
+    }
 
-function setUrlCat(id){
-  const u = new URL(location.href);
-  u.searchParams.set("cat", id);
-  history.replaceState({}, "", u);
-}
+    function makeOption(c){
+      const o = document.createElement("option");
+      o.value = c.id;
+      o.textContent = c.label;
+      return o;
+    }
 
-sel.addEventListener("change", ()=> {
-  setUrlCat(sel.value);
-  loadCategory(sel.value);
-});
+    function getSelected(){
+      const id = $cat.value;
+      return CATEGORIES.find(c => c.id === id) || CATEGORIES[0];
+    }
 
-async function loadCategory(id){
-  const errorEl = document.getElementById("error");
-  errorEl.textContent = "";
+    function setQueryCat(id){
+      const url = new URL(location.href);
+      url.searchParams.set("cat", id);
+      history.replaceState({}, "", url.toString());
+    }
 
-  const cat = CATEGORIES.find(x=>x.id===id) || CATEGORIES[0];
-  sel.value = cat.id;
+    function normalizeData(data){
+      // On accepte 2 formats:
+      // 1) { "items": [ ... ] }
+      // 2) [ ... ]
+      if (Array.isArray(data)) return data;
+      if (data && Array.isArray(data.items)) return data.items;
+      return [];
+    }
 
-  try {
-    const res = await fetch(cat.file + "?v=" + Date.now()); // cache-bust
-    if(!res.ok) throw new Error("Can't load " + cat.file + " (" + res.status + ")");
-    const data = await res.json();
+    function cardHTML(item){
+      const title = item.title || "Untitled";
+      const price = item.price || "";
+      const note  = item.note  || "";
+      const img   = item.image || "";
+      const url   = item.url   || "#";
 
-    render(cat.label, data.items || []);
-  } catch(e){
-    errorEl.textContent = "Error loading this category. Make sure the JSON file exists: " + (cat?.file || "") ;
-    render((cat && cat.label) ? cat.label : "Category", []);
-  }
-}
+      const line = [price, note].filter(Boolean).join(" • ");
 
-function render(title, items){
-  const host = document.getElementById("content");
-  host.innerHTML = "";
+      return `
+        <div class="card">
+          <div class="thumb">
+            ${img ? `<img src="${img}" alt="">` : ``}
+          </div>
+          <div class="meta">
+            <p class="title" title="${escapeHtml(title)}">${escapeHtml(title)}</p>
+            <p class="line" title="${escapeHtml(line)}">${escapeHtml(line)}</p>
+          </div>
+          <a class="open" href="${url}" target="_blank" rel="noopener">Open</a>
+        </div>
+      `;
+    }
 
-  const card = document.createElement("div");
-  card.className = "card";
+    function escapeHtml(str){
+      return String(str).replace(/[&<>"']/g, (m) => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"
+      }[m]));
+    }
 
-  const h2 = document.createElement("h2");
-  h2.textContent = title;
-  card.appendChild(h2);
+    async function loadCategory(catObj){
+      clearError();
+      $title.textContent = catObj.label;
+      $count.textContent = "";
+      $grid.innerHTML = "";
+      $empty.style.display = "none";
 
-  const list = document.createElement("div");
-  list.className = "items";
+      try{
+        // cache bust pour éviter l'ancien JSON en cache
+        const res = await fetch(catObj.file + "?v=" + Date.now(), { cache: "no-store" });
+        if(!res.ok){
+          throw new Error(`Fetch failed: ${res.status} ${res.statusText}\nMissing file? -> ${catObj.file}`);
+        }
 
-  if(!items.length){
-    const empty = document.createElement("div");
-    empty.className = "meta";
-    empty.textContent = "No items yet. (n8n can fill this later.)";
-    card.appendChild(empty);
-  } else {
-    items.slice(0, 30).forEach(it=>{
-      const row = document.createElement("div");
-      row.className = "item";
+        const data = await res.json();
+        const items = normalizeData(data);
 
-      const img = document.createElement("img");
-      img.src = it.image || "";
-      img.alt = it.title || "item";
-      row.appendChild(img);
+        if(!items.length){
+          $empty.style.display = "block";
+          $count.textContent = "(0)";
+          return;
+        }
 
-      const box = document.createElement("div");
+        $count.textContent = `(${items.length})`;
+        $grid.innerHTML = items.map(cardHTML).join("");
+      }catch(err){
+        showError(
+          "❌ Something broke while loading this category.\n\n" +
+          err.message +
+          "\n\nFix tips:\n" +
+          "- Verify the JSON file exists in /data\n" +
+          "- Make sure JSON is valid (no missing commas/brackets)\n" +
+          "- Open the JSON URL directly to confirm it loads"
+        );
+      }
+    }
 
-      const a = document.createElement("a");
-      a.href = it.url || "#";
-      a.target = "_blank";
-      a.rel = "noopener noreferrer";
-      a.textContent = it.title || "View product";
-      box.appendChild(a);
+    function init(){
+      // Build dropdown
+      CATEGORIES.forEach(c => $cat.appendChild(makeOption(c)));
 
-      const meta = document.createElement("div");
-      meta.className="meta";
-      meta.textContent = [it.price, it.note].filter(Boolean).join(" • ");
-      box.appendChild(meta);
+      // Read ?cat=
+      const qs = new URLSearchParams(location.search);
+      const catParam = qs.get("cat");
+      const first = CATEGORIES.find(c => c.id === catParam) || CATEGORIES[0];
 
-      row.appendChild(box);
-      list.appendChild(row);
-    });
-    card.appendChild(list);
-  }
+      $cat.value = first.id;
 
-  host.appendChild(card);
-}
+      // Events
+      $cat.addEventListener("change", () => {
+        const c = getSelected();
+        setQueryCat(c.id);
+        loadCategory(c);
+      });
 
-// initial
-const startCat = CATEGORIES.some(c=>c.id===catFromUrl) ? catFromUrl : CATEGORIES[0].id;
-setUrlCat(startCat);
-loadCategory(startCat);
-</script>
+      $reloadBtn.addEventListener("click", () => {
+        const c = getSelected();
+        loadCategory(c);
+      });
+
+      // Initial load
+      loadCategory(first);
+    }
+
+    init();
+  </script>
 </body>
 </html>
