@@ -221,155 +221,232 @@
   </div>
 
   <script>
-    // ✅ CATEGORIES (Fitness Finds est inclus)
-    const CATEGORIES = [
-      { id: "best-deals",       label: "Best Deals",       file: "data/best-deals.json" },
-      { id: "gift-ideas",       label: "Gift Ideas",       file: "data/gift-ideas.json" },
-      { id: "home-essentials",  label: "Home Essentials",  file: "data/home-essentials.json" },
-      { id: "kitchen-gadgets",  label: "Kitchen Gadgets",  file: "data/kitchen-gadgets.json" },
-      { id: "beauty-picks",     label: "Beauty Picks",     file: "data/beauty-picks.json" },
-      { id: "pet-must-haves",   label: "Pet Must-Haves",   file: "data/pet-must-haves.json" },
-      { id: "fitness-finds",    label: "Fitness Finds",    file: "data/fitness-finds.json" }
-    ];
+  const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ15a6lYyyB0VTZGad-1XiskC46aLomQFXsqEfpaeozd3QqeEXSjJmC61L8JK5wY30BKw2Z6dW41wmt/pub?gid=301989646&single=true&output=csv";
 
-    const $cat = document.getElementById("cat");
-    const $grid = document.getElementById("grid");
-    const $empty = document.getElementById("empty");
-    const $title = document.getElementById("catTitle");
-    const $count = document.getElementById("count");
-    const $errorBox = document.getElementById("errorBox");
-    const $reloadBtn = document.getElementById("reloadBtn");
+  const CATEGORIES = [
+    { id: "best-deals",      label: "Best Deals",      sheetValue: "best deals" },
+    { id: "gift-ideas",      label: "Gift Ideas",      sheetValue: "gift ideas" },
+    { id: "home-essentials", label: "Home Essentials", sheetValue: "home essentials" },
+    { id: "kitchen-gadgets", label: "Kitchen Gadgets", sheetValue: "kitchen gadgets" },
+    { id: "beauty-picks",    label: "Beauty Picks",    sheetValue: "beauty picks" },
+    { id: "pet-must-haves",  label: "Pet Must-Haves",  sheetValue: "pet must-haves" },
+    { id: "fitness-finds",   label: "Fitness Finds",   sheetValue: "fitness finds" }
+  ];
 
-    function showError(msg){
-      $errorBox.style.display = "block";
-      $errorBox.textContent = msg;
-    }
-    function clearError(){
-      $errorBox.style.display = "none";
-      $errorBox.textContent = "";
-    }
+  const $cat = document.getElementById("cat");
+  const $grid = document.getElementById("grid");
+  const $empty = document.getElementById("empty");
+  const $title = document.getElementById("catTitle");
+  const $count = document.getElementById("count");
+  const $errorBox = document.getElementById("errorBox");
+  const $reloadBtn = document.getElementById("reloadBtn");
 
-    function makeOption(c){
-      const o = document.createElement("option");
-      o.value = c.id;
-      o.textContent = c.label;
-      return o;
-    }
+  let ALL_PRODUCTS = [];
 
-    function getSelected(){
-      const id = $cat.value;
-      return CATEGORIES.find(c => c.id === id) || CATEGORIES[0];
-    }
+  function showError(msg){
+    $errorBox.style.display = "block";
+    $errorBox.textContent = msg;
+  }
 
-    function setQueryCat(id){
-      const url = new URL(location.href);
-      url.searchParams.set("cat", id);
-      history.replaceState({}, "", url.toString());
-    }
+  function clearError(){
+    $errorBox.style.display = "none";
+    $errorBox.textContent = "";
+  }
 
-    function normalizeData(data){
-      // On accepte 2 formats:
-      // 1) { "items": [ ... ] }
-      // 2) [ ... ]
-      if (Array.isArray(data)) return data;
-      if (data && Array.isArray(data.items)) return data.items;
-      return [];
-    }
+  function makeOption(c){
+    const o = document.createElement("option");
+    o.value = c.id;
+    o.textContent = c.label;
+    return o;
+  }
 
-    function cardHTML(item){
-      const title = item.title || "Untitled";
-      const price = item.price || "";
-      const note  = item.note  || "";
-      const img   = item.image || "";
-      const url   = item.url   || "#";
+  function getSelected(){
+    const id = $cat.value;
+    return CATEGORIES.find(c => c.id === id) || CATEGORIES[0];
+  }
 
-      const line = [price, note].filter(Boolean).join(" • ");
+  function setQueryCat(id){
+    const url = new URL(location.href);
+    url.searchParams.set("cat", id);
+    history.replaceState({}, "", url.toString());
+  }
 
-      return `
-        <div class="card">
-          <div class="thumb">
-            ${img ? `<img src="${img}" alt="">` : ``}
-          </div>
-          <div class="meta">
-            <p class="title" title="${escapeHtml(title)}">${escapeHtml(title)}</p>
-            <p class="line" title="${escapeHtml(line)}">${escapeHtml(line)}</p>
-          </div>
-          <a class="open" href="${url}" target="_blank" rel="noopener">Open</a>
-        </div>
-      `;
-    }
+  function escapeHtml(str){
+    return String(str ?? "").replace(/[&<>"']/g, (m) => ({
+      "&":"&amp;",
+      "<":"&lt;",
+      ">":"&gt;",
+      "\"":"&quot;",
+      "'":"&#039;"
+    }[m]));
+  }
 
-    function escapeHtml(str){
-      return String(str).replace(/[&<>"']/g, (m) => ({
-        "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"
-      }[m]));
-    }
+  function slugifyCategory(value){
+    return String(value || "")
+      .trim()
+      .toLowerCase()
+      .replace(/&/g, "and")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+  }
 
-    async function loadCategory(catObj){
-      clearError();
-      $title.textContent = catObj.label;
-      $count.textContent = "";
-      $grid.innerHTML = "";
-      $empty.style.display = "none";
+  function parseCSVLine(line) {
+    const result = [];
+    let current = "";
+    let inQuotes = false;
 
-      try{
-        // cache bust pour éviter l'ancien JSON en cache
-        const res = await fetch(catObj.file + "?v=" + Date.now(), { cache: "no-store" });
-        if(!res.ok){
-          throw new Error(`Fetch failed: ${res.status} ${res.statusText}\nMissing file? -> ${catObj.file}`);
-        }
+    for (let i = 0; i < line.length; i++) {
+      const char = line[i];
+      const next = line[i + 1];
 
-        const data = await res.json();
-        const items = normalizeData(data);
-
-        if(!items.length){
-          $empty.style.display = "block";
-          $count.textContent = "(0)";
-          return;
-        }
-
-        $count.textContent = `(${items.length})`;
-        $grid.innerHTML = items.map(cardHTML).join("");
-      }catch(err){
-        showError(
-          "❌ Something broke while loading this category.\n\n" +
-          err.message +
-          "\n\nFix tips:\n" +
-          "- Verify the JSON file exists in /data\n" +
-          "- Make sure JSON is valid (no missing commas/brackets)\n" +
-          "- Open the JSON URL directly to confirm it loads"
-        );
+      if (char === '"' && inQuotes && next === '"') {
+        current += '"';
+        i++;
+      } else if (char === '"') {
+        inQuotes = !inQuotes;
+      } else if (char === "," && !inQuotes) {
+        result.push(current);
+        current = "";
+      } else {
+        current += char;
       }
     }
 
-    function init(){
-      // Build dropdown
-      CATEGORIES.forEach(c => $cat.appendChild(makeOption(c)));
+    result.push(current);
+    return result;
+  }
 
-      // Read ?cat=
-      const qs = new URLSearchParams(location.search);
-      const catParam = qs.get("cat");
-      const first = CATEGORIES.find(c => c.id === catParam) || CATEGORIES[0];
+  function parseCSV(text){
+    const lines = text
+      .replace(/\r\n/g, "\n")
+      .replace(/\r/g, "\n")
+      .split("\n")
+      .filter(line => line.trim() !== "");
 
-      $cat.value = first.id;
+    if (!lines.length) return [];
 
-      // Events
-      $cat.addEventListener("change", () => {
-        const c = getSelected();
-        setQueryCat(c.id);
-        loadCategory(c);
+    const headers = parseCSVLine(lines[0]).map(h => h.trim());
+
+    return lines.slice(1).map(line => {
+      const values = parseCSVLine(line);
+      const obj = {};
+      headers.forEach((header, i) => {
+        obj[header] = (values[i] || "").trim();
       });
+      return obj;
+    });
+  }
 
-      $reloadBtn.addEventListener("click", () => {
-        const c = getSelected();
-        loadCategory(c);
-      });
+  function cardHTML(item){
+    const title = item.pin_title || item.title || "Untitled";
+    const price = item.price || "";
+    const img = item.image || "";
+    const url = item.url || "#";
+    const published = [item.publish_day, item.publish_time].filter(Boolean).join(" • ");
 
-      // Initial load
-      loadCategory(first);
+    const lineParts = [];
+    if (price) lineParts.push(price);
+    if (published) lineParts.push(published);
+
+    return `
+      <div class="card">
+        <div class="thumb">
+          ${img ? `<img src="${escapeHtml(img)}" alt="${escapeHtml(title)}">` : ``}
+        </div>
+        <div class="meta">
+          <p class="title" title="${escapeHtml(title)}">${escapeHtml(title)}</p>
+          <p class="line" title="${escapeHtml(lineParts.join(" • "))}">${escapeHtml(lineParts.join(" • "))}</p>
+        </div>
+        <a class="open" href="${escapeHtml(url)}" target="_blank" rel="noopener">Open</a>
+      </div>
+    `;
+  }
+
+  async function fetchSheetProducts(){
+    const res = await fetch(SHEET_CSV_URL + (SHEET_CSV_URL.includes("?") ? "&" : "?") + "v=" + Date.now(), {
+      cache: "no-store"
+    });
+
+    if (!res.ok) {
+      throw new Error(`Fetch failed: ${res.status} ${res.statusText}`);
     }
 
-    init();
-  </script>
+    const text = await res.text();
+    return parseCSV(text);
+  }
+
+  function filterProductsForCategory(catObj){
+    return ALL_PRODUCTS.filter(item => {
+      const statusOk = String(item.status || "").trim().toLowerCase() === "published";
+      const categorySlug = slugifyCategory(item.Category || item.category || "");
+      return statusOk && categorySlug === catObj.id;
+    });
+  }
+
+  function renderCategory(catObj){
+    clearError();
+    $title.textContent = catObj.label;
+    $grid.innerHTML = "";
+    $empty.style.display = "none";
+
+    const items = filterProductsForCategory(catObj);
+
+    if (!items.length){
+      $count.textContent = "(0)";
+      $empty.style.display = "block";
+      return;
+    }
+
+    $count.textContent = `(${items.length})`;
+    $grid.innerHTML = items.map(cardHTML).join("");
+  }
+
+  async function reloadDataAndRender(){
+    const c = getSelected();
+    clearError();
+    $title.textContent = c.label;
+    $count.textContent = "";
+    $grid.innerHTML = "";
+    $empty.style.display = "none";
+
+    try{
+      ALL_PRODUCTS = await fetchSheetProducts();
+      renderCategory(c);
+    } catch(err){
+      showError(
+        "❌ Impossible de charger Google Sheet.\n\n" +
+        err.message +
+        "\n\nVérifie :\n" +
+        "- que le lien CSV est correct\n" +
+        "- que la feuille est publiée sur le web\n" +
+        "- que les colonnes existent bien : status, Category, image, url"
+      );
+    }
+  }
+
+  function init(){
+    CATEGORIES.forEach(c => $cat.appendChild(makeOption(c)));
+
+    const qs = new URLSearchParams(location.search);
+    const catParam = qs.get("cat");
+    const first = CATEGORIES.find(c => c.id === catParam) || CATEGORIES[0];
+
+    $cat.value = first.id;
+
+    $cat.addEventListener("change", () => {
+      const c = getSelected();
+      setQueryCat(c.id);
+      renderCategory(c);
+    });
+
+    $reloadBtn.addEventListener("click", () => {
+      reloadDataAndRender();
+    });
+
+    reloadDataAndRender();
+  }
+
+  init();
+</script>
 </body>
 </html>
