@@ -4,450 +4,829 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Daily Product Picks</title>
+  <meta name="description" content="Discover curated daily product picks, gift ideas, home essentials, beauty finds, pet must-haves, kitchen gadgets, and more." />
 
   <style>
     :root{
       --bg1:#6a2ca5;
       --bg2:#0b5cff;
+      --bg3:#081a4b;
       --card:#ffffff14;
+      --card-strong:#ffffff18;
       --border:#ffffff2b;
       --text:#ffffff;
       --muted:#ffffffb8;
-      --shadow: 0 10px 35px rgba(0,0,0,.25);
-      --radius: 18px;
+      --muted-2:#ffffff8a;
+      --shadow:0 10px 35px rgba(0,0,0,.25);
+      --shadow-soft:0 8px 20px rgba(0,0,0,.12);
+      --radius:20px;
+      --success:#b9ffd6;
+      --warning:#ffe7a3;
+      --danger:#ffd0d0;
     }
+
     *{box-sizing:border-box}
+
+    html{
+      scroll-behavior:smooth;
+    }
+
     body{
       margin:0;
       min-height:100vh;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
       color:var(--text);
-      background: radial-gradient(1200px 800px at 20% 20%, #9a52ff33, transparent 60%),
-                  linear-gradient(135deg, var(--bg1), var(--bg2));
+      background:
+        radial-gradient(1200px 800px at 20% 20%, #9a52ff33, transparent 60%),
+        radial-gradient(900px 600px at 80% 10%, #4fc3ff20, transparent 50%),
+        linear-gradient(135deg, var(--bg1), var(--bg2) 55%, var(--bg3));
       display:flex;
       align-items:center;
       justify-content:center;
       padding:24px;
     }
+
     .wrap{
-      width:min(980px, 100%);
+      width:min(1100px, 100%);
       display:grid;
-      grid-template-columns: 1.1fr 1.9fr;
+      grid-template-columns: 1.05fr 1.95fr;
       gap:22px;
     }
-    @media (max-width: 860px){
-      .wrap{grid-template-columns: 1fr}
+
+    @media (max-width: 920px){
+      .wrap{grid-template-columns:1fr}
     }
 
     .panel{
       background:var(--card);
       border:1px solid var(--border);
-      border-radius: var(--radius);
-      padding:20px;
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(10px);
+      border-radius:var(--radius);
+      padding:22px;
+      box-shadow:var(--shadow);
+      backdrop-filter:blur(12px);
+      -webkit-backdrop-filter:blur(12px);
     }
-    h1{
-      margin:0 0 6px;
-      font-size: 42px;
-      letter-spacing: .3px;
+
+    .leftPanel{
+      position:relative;
+      overflow:hidden;
     }
+
+    .leftPanel::before{
+      content:"";
+      position:absolute;
+      inset:auto -50px -60px auto;
+      width:180px;
+      height:180px;
+      border-radius:50%;
+      background:radial-gradient(circle, #ffffff22 0%, transparent 70%);
+      pointer-events:none;
+    }
+
+    .pillRow{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-bottom:14px;
+    }
+
     .pill{
-      display:inline-block;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
       padding:8px 12px;
-      border-radius: 999px;
+      border-radius:999px;
       border:1px solid var(--border);
       background:#ffffff10;
       color:var(--muted);
-      font-size: 13px;
-      margin-bottom:14px;
+      font-size:13px;
+      line-height:1;
     }
+
+    h1{
+      margin:0 0 8px;
+      font-size:clamp(32px, 5vw, 44px);
+      line-height:1.02;
+      letter-spacing:.2px;
+    }
+
     .sub{
       margin:0 0 18px;
       color:var(--muted);
-      line-height: 1.35;
+      line-height:1.5;
+      font-size:15px;
     }
-    .row{
+
+    .notice{
+      margin:0 0 18px;
+      padding:14px 15px;
+      border-radius:16px;
+      border:1px solid #ffffff24;
+      background:linear-gradient(180deg, #ffffff14, #ffffff0c);
+      color:#fff;
+      box-shadow:var(--shadow-soft);
+    }
+
+    .notice strong{
+      display:block;
+      margin-bottom:6px;
+      font-size:14px;
+    }
+
+    .notice p{
+      margin:0;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.45;
+    }
+
+    .controls{
+      display:grid;
+      gap:12px;
+      margin:16px 0 10px;
+    }
+
+    .controlRow{
       display:flex;
       gap:12px;
       align-items:center;
       flex-wrap:wrap;
-      margin:10px 0 14px;
     }
-    select{
-      width: 260px;
-      max-width: 100%;
-      padding:12px 12px;
-      border-radius: 12px;
+
+    label{
+      display:block;
+      font-size:13px;
+      color:var(--muted);
+      margin-bottom:7px;
+    }
+
+    .field{
+      flex:1 1 220px;
+      min-width:0;
+    }
+
+    select, input[type="search"]{
+      width:100%;
+      max-width:100%;
+      padding:13px 14px;
+      border-radius:14px;
       border:1px solid var(--border);
       background:#0b0b0b26;
       color:var(--text);
       outline:none;
+      transition:.18s ease;
     }
+
+    select:focus, input[type="search"]:focus{
+      border-color:#ffffff66;
+      box-shadow:0 0 0 3px #ffffff14;
+    }
+
+    select option{
+      color:#111;
+    }
+
     .btn{
-      padding:12px 14px;
-      border-radius: 12px;
+      padding:13px 16px;
+      border-radius:14px;
       border:1px solid var(--border);
       background:#ffffff14;
       color:var(--text);
       cursor:pointer;
+      transition:.18s ease;
+      font-weight:600;
+      min-width:120px;
     }
-    .btn:hover{ background:#ffffff1f; }
+
+    .btn:hover{
+      background:#ffffff20;
+      transform:translateY(-1px);
+    }
+
+    .btn:active{
+      transform:translateY(0);
+    }
+
+    .smallInfo{
+      color:var(--muted-2);
+      font-size:12px;
+      line-height:1.45;
+      margin-top:8px;
+    }
+
+    .topBar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      margin-bottom:14px;
+      flex-wrap:wrap;
+    }
 
     .listTitle{
       display:flex;
       align-items:center;
-      justify-content:space-between;
       gap:10px;
-      margin-bottom: 12px;
+      flex-wrap:wrap;
     }
+
     .listTitle h2{
       margin:0;
-      font-size: 18px;
-      color: var(--text);
+      font-size:22px;
+      line-height:1.1;
     }
+
     .hint{
-      margin:0;
       color:var(--muted);
-      font-size: 13px;
+      font-size:13px;
+    }
+
+    .sortWrap{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .sortWrap select{
+      width:auto;
+      min-width:180px;
+    }
+
+    .statusBar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-bottom:14px;
+      padding:12px 14px;
+      border-radius:16px;
+      border:1px solid #ffffff1f;
+      background:#ffffff0c;
+    }
+
+    .statusText{
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.4;
+    }
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 11px;
+      border-radius:999px;
+      border:1px solid #ffffff26;
+      background:#ffffff12;
+      color:#fff;
+      font-size:12px;
+      white-space:nowrap;
     }
 
     .grid{
       display:grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap:12px;
+      grid-template-columns:repeat(2, minmax(0, 1fr));
+      gap:14px;
     }
-    @media (max-width: 520px){
-      .grid{grid-template-columns: 1fr}
+
+    @media (max-width: 580px){
+      .grid{grid-template-columns:1fr}
     }
 
     .card{
       display:flex;
       gap:12px;
       align-items:center;
-      padding:12px;
-      border-radius: 16px;
+      padding:14px;
+      border-radius:18px;
       border:1px solid var(--border);
-      background:#ffffff12;
-      box-shadow: 0 10px 25px rgba(0,0,0,.15);
+      background:linear-gradient(180deg, #ffffff14, #ffffff0d);
+      box-shadow:0 10px 25px rgba(0,0,0,.14);
+      transition:.2s ease;
     }
+
+    .card:hover{
+      transform:translateY(-2px);
+      background:linear-gradient(180deg, #ffffff18, #ffffff10);
+    }
+
     .thumb{
-      width:60px;
-      height:60px;
-      border-radius: 12px;
+      width:72px;
+      height:72px;
+      border-radius:14px;
       background:#00000026;
       overflow:hidden;
       flex:0 0 auto;
       border:1px solid #ffffff1f;
+      display:grid;
+      place-items:center;
     }
+
     .thumb img{
       width:100%;
       height:100%;
       object-fit:cover;
       display:block;
     }
-    .meta{min-width:0}
-    .title{
-      font-weight: 700;
-      margin:0;
-      font-size: 14px;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-    .line{
-      margin:3px 0 0;
+
+    .thumbFallback{
+      font-size:11px;
+      text-align:center;
       color:var(--muted);
-      font-size: 13px;
+      padding:6px;
+      line-height:1.25;
+    }
+
+    .meta{
+      min-width:0;
+      flex:1 1 auto;
+    }
+
+    .title{
+      font-weight:700;
+      margin:0;
+      font-size:14px;
+      line-height:1.35;
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient:vertical;
+      overflow:hidden;
+    }
+
+    .price{
+      margin:7px 0 0;
+      color:#fff;
+      font-size:14px;
+      font-weight:700;
+    }
+
+    .line{
+      margin:4px 0 0;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.35;
       white-space:nowrap;
       overflow:hidden;
       text-overflow:ellipsis;
     }
+
     .open{
       margin-left:auto;
       flex:0 0 auto;
       text-decoration:none;
-      padding:10px 12px;
-      border-radius: 12px;
+      padding:11px 13px;
+      border-radius:13px;
       border:1px solid var(--border);
       background:#ffffff10;
       color:var(--text);
-      font-size: 13px;
+      font-size:13px;
+      font-weight:600;
+      transition:.18s ease;
+      text-align:center;
     }
-    .open:hover{ background:#ffffff1f; }
+
+    .open:hover{
+      background:#ffffff1f;
+      transform:translateY(-1px);
+    }
+
+    .empty, .loading, .errBox{
+      padding:16px;
+      border-radius:16px;
+      font-size:14px;
+      line-height:1.5;
+    }
 
     .empty{
-      padding:12px;
-      border-radius: 14px;
       border:1px dashed #ffffff2b;
-      color: var(--muted);
+      color:var(--muted);
       background:#ffffff0a;
     }
-    .err{
-      margin-top:10px;
-      color:#ffd0d0;
-      font-size:13px;
-      white-space: pre-wrap;
+
+    .loading{
+      border:1px solid #ffffff22;
+      color:var(--muted);
+      background:#ffffff0d;
+    }
+
+    .errBox{
+      margin-top:12px;
+      color:var(--danger);
+      border:1px solid #ffcbcb30;
+      background:#ff000012;
+      white-space:pre-wrap;
+    }
+
+    .footerNote{
+      margin-top:18px;
+      color:var(--muted-2);
+      font-size:12px;
+      line-height:1.45;
+    }
+
+    .sr-only{
+      position:absolute;
+      width:1px;
+      height:1px;
+      padding:0;
+      margin:-1px;
+      overflow:hidden;
+      clip:rect(0,0,0,0);
+      white-space:nowrap;
+      border:0;
     }
   </style>
 </head>
 
 <body>
   <div class="wrap">
-    <section class="panel">
-      <div class="pill">Updated daily • curated picks</div>
-      <h1>Daily product picks</h1>
-      <p class="sub">Affiliate links may earn me a commission at no extra cost to you.</p>
-
-      <div class="row">
-        <select id="cat"></select>
-        <button class="btn" id="reloadBtn">Reload</button>
+    <section class="panel leftPanel">
+      <div class="pillRow">
+        <div class="pill">Updated daily</div>
+        <div class="pill">Curated picks</div>
+        <div class="pill">Amazon affiliate links</div>
       </div>
 
-      <p class="disclaimer">Prices and availability are subject to change on Amazon at any time. 
-While we strive to keep information up to date, the final price and availability will always be shown on Amazon at checkout.</p>
-      <div id="errorBox" class="err" style="display:none;"></div>
+      <h1>Daily product picks</h1>
+      <p class="sub">
+        Explore trending finds, gift ideas, home essentials, beauty favorites, pet picks, and more — all in one place.
+      </p>
+
+      <div class="notice">
+        <strong>Important pricing note</strong>
+        <p>
+          Prices and availability are subject to change on Amazon at any time.
+          While we do our best to keep this page updated, the final price and availability will always be shown on Amazon at checkout.
+        </p>
+      </div>
+
+      <div class="controls">
+        <div class="field">
+          <label for="cat">Choose a category</label>
+          <select id="cat" aria-label="Choose a category"></select>
+        </div>
+
+        <div class="controlRow">
+          <div class="field">
+            <label for="searchBox">Search products</label>
+            <input id="searchBox" type="search" placeholder="Search by product title..." aria-label="Search products" />
+          </div>
+          <button class="btn" id="reloadBtn" type="button">Reload</button>
+        </div>
+      </div>
+
+      <div id="errorBox" class="errBox" style="display:none;"></div>
+
+      <p class="smallInfo">
+        As an Amazon Associate, I may earn from qualifying purchases at no extra cost to you.
+      </p>
     </section>
 
     <section class="panel">
-      <div class="listTitle">
-        <h2 id="catTitle">Choose a category</h2>
-        <span class="hint" id="count"></span>
+      <div class="topBar">
+        <div class="listTitle">
+          <h2 id="catTitle">Choose a category</h2>
+          <span class="hint" id="count"></span>
+        </div>
+
+        <div class="sortWrap">
+          <label class="sr-only" for="sortBy">Sort products</label>
+          <select id="sortBy" aria-label="Sort products">
+            <option value="default">Sort: Default</option>
+            <option value="title-asc">Title: A to Z</option>
+            <option value="title-desc">Title: Z to A</option>
+          </select>
+        </div>
       </div>
+
+      <div class="statusBar">
+        <div class="statusText" id="statusText">
+          Browse curated products and click through to Amazon for the latest price.
+        </div>
+        <div class="badge">Live prices on Amazon</div>
+      </div>
+
+      <div id="loading" class="loading" style="display:none;">Loading products…</div>
       <div id="grid" class="grid"></div>
+
       <div id="empty" class="empty" style="display:none;">
-        No items yet. Your automation can fill this list later.
+        No products found for this category right now. Try another category or reload the page.
       </div>
+
+      <p class="footerNote">
+        Product availability, discounts, coupons, and shipping options may vary by region and by the time you visit Amazon.
+      </p>
     </section>
   </div>
 
   <script>
-  const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ15a6lYyyB0VTZGad-1XiskC46aLomQFXsqEfpaeozd3QqeEXSjJmC61L8JK5wY30BKw2Z6dW41wmt/pub?gid=301989646&single=true&output=csv";
+    const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ15a6lYyyB0VTZGad-1XiskC46aLomQFXsqEfpaeozd3QqeEXSjJmC61L8JK5wY30BKw2Z6dW41wmt/pub?gid=301989646&single=true&output=csv";
 
-  const CATEGORIES = [
-    { id: "best-deals",      label: "Best Deals",      sheetValue: "best deals" },
-    { id: "gift-ideas",      label: "Gift Ideas",      sheetValue: "gift ideas" },
-    { id: "home-essentials", label: "Home Essentials", sheetValue: "home essentials" },
-    { id: "kitchen-gadgets", label: "Kitchen Gadgets", sheetValue: "kitchen gadgets" },
-    { id: "beauty-picks",    label: "Beauty Picks",    sheetValue: "beauty picks" },
-    { id: "pet-must-haves",  label: "Pet Must-Haves",  sheetValue: "pet must-haves" },
-    { id: "fitness-finds",   label: "Fitness Finds",   sheetValue: "fitness finds" }
-  ];
+    const CATEGORIES = [
+      { id: "best-deals",      label: "Best Deals" },
+      { id: "gift-ideas",      label: "Gift Ideas" },
+      { id: "home-essentials", label: "Home Essentials" },
+      { id: "kitchen-gadgets", label: "Kitchen Gadgets" },
+      { id: "beauty-picks",    label: "Beauty Picks" },
+      { id: "pet-must-haves",  label: "Pet Must-Haves" },
+      { id: "fitness-finds",   label: "Fitness Finds" }
+    ];
 
-  const $cat = document.getElementById("cat");
-  const $grid = document.getElementById("grid");
-  const $empty = document.getElementById("empty");
-  const $title = document.getElementById("catTitle");
-  const $count = document.getElementById("count");
-  const $errorBox = document.getElementById("errorBox");
-  const $reloadBtn = document.getElementById("reloadBtn");
+    const $cat = document.getElementById("cat");
+    const $grid = document.getElementById("grid");
+    const $empty = document.getElementById("empty");
+    const $title = document.getElementById("catTitle");
+    const $count = document.getElementById("count");
+    const $errorBox = document.getElementById("errorBox");
+    const $reloadBtn = document.getElementById("reloadBtn");
+    const $searchBox = document.getElementById("searchBox");
+    const $sortBy = document.getElementById("sortBy");
+    const $loading = document.getElementById("loading");
+    const $statusText = document.getElementById("statusText");
 
-  let ALL_PRODUCTS = [];
+    let ALL_PRODUCTS = [];
 
-  function showError(msg){
-    $errorBox.style.display = "block";
-    $errorBox.textContent = msg;
-  }
+    function showError(msg){
+      $errorBox.style.display = "block";
+      $errorBox.textContent = msg;
+    }
 
-  function clearError(){
-    $errorBox.style.display = "none";
-    $errorBox.textContent = "";
-  }
+    function clearError(){
+      $errorBox.style.display = "none";
+      $errorBox.textContent = "";
+    }
 
-  function makeOption(c){
-    const o = document.createElement("option");
-    o.value = c.id;
-    o.textContent = c.label;
-    return o;
-  }
+    function setLoading(isLoading){
+      $loading.style.display = isLoading ? "block" : "none";
+      $reloadBtn.disabled = isLoading;
+      $reloadBtn.textContent = isLoading ? "Loading..." : "Reload";
+    }
 
-  function getSelected(){
-    const id = $cat.value;
-    return CATEGORIES.find(c => c.id === id) || CATEGORIES[0];
-  }
+    function makeOption(c){
+      const o = document.createElement("option");
+      o.value = c.id;
+      o.textContent = c.label;
+      return o;
+    }
 
-  function setQueryCat(id){
-    const url = new URL(location.href);
-    url.searchParams.set("cat", id);
-    history.replaceState({}, "", url.toString());
-  }
+    function getSelected(){
+      const id = $cat.value;
+      return CATEGORIES.find(c => c.id === id) || CATEGORIES[0];
+    }
 
-  function escapeHtml(str){
-    return String(str ?? "").replace(/[&<>"']/g, (m) => ({
-      "&":"&amp;",
-      "<":"&lt;",
-      ">":"&gt;",
-      "\"":"&quot;",
-      "'":"&#039;"
-    }[m]));
-  }
-
-  function slugifyCategory(value){
-    return String(value || "")
-      .trim()
-      .toLowerCase()
-      .replace(/&/g, "and")
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-+|-+$/g, "");
-  }
-
-  function parseCSVLine(line) {
-    const result = [];
-    let current = "";
-    let inQuotes = false;
-
-    for (let i = 0; i < line.length; i++) {
-      const char = line[i];
-      const next = line[i + 1];
-
-      if (char === '"' && inQuotes && next === '"') {
-        current += '"';
-        i++;
-      } else if (char === '"') {
-        inQuotes = !inQuotes;
-      } else if (char === "," && !inQuotes) {
-        result.push(current);
-        current = "";
+    function setQueryParam(key, value){
+      const url = new URL(location.href);
+      if (value) {
+        url.searchParams.set(key, value);
       } else {
-        current += char;
+        url.searchParams.delete(key);
+      }
+      history.replaceState({}, "", url.toString());
+    }
+
+    function escapeHtml(str){
+      return String(str ?? "").replace(/[&<>"']/g, (m) => ({
+        "&":"&amp;",
+        "<":"&lt;",
+        ">":"&gt;",
+        "\"":"&quot;",
+        "'":"&#039;"
+      }[m]));
+    }
+
+    function slugifyCategory(value){
+      return String(value || "")
+        .trim()
+        .toLowerCase()
+        .replace(/&/g, "and")
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+    }
+
+    function parseCSVLine(line){
+      const result = [];
+      let current = "";
+      let inQuotes = false;
+
+      for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+        const next = line[i + 1];
+
+        if (char === '"' && inQuotes && next === '"') {
+          current += '"';
+          i++;
+        } else if (char === '"') {
+          inQuotes = !inQuotes;
+        } else if (char === "," && !inQuotes) {
+          result.push(current);
+          current = "";
+        } else {
+          current += char;
+        }
+      }
+
+      result.push(current);
+      return result;
+    }
+
+    function parseCSV(text){
+      const lines = text
+        .replace(/\r\n/g, "\n")
+        .replace(/\r/g, "\n")
+        .split("\n")
+        .filter(line => line.trim() !== "");
+
+      if (!lines.length) return [];
+
+      const headers = parseCSVLine(lines[0]).map(h => h.trim());
+
+      return lines.slice(1).map(line => {
+        const values = parseCSVLine(line);
+        const obj = {};
+        headers.forEach((header, i) => {
+          obj[header] = (values[i] || "").trim();
+        });
+        return obj;
+      });
+    }
+
+    function normalizeProduct(item){
+      return {
+        title: item.pin_title || item.title || item.product_title || "Untitled",
+        price: item.price || "",
+        image: item.image || item.image_url || "",
+        url: item.url || item.link || "#",
+        category: item.Category || item.category || "",
+        status: item.status || "",
+        publishDay: item.publish_day || "",
+        publishTime: item.publish_time || ""
+      };
+    }
+
+    function safeUrl(url){
+      const value = String(url || "").trim();
+      if (!value) return "#";
+      if (/^https?:\/\//i.test(value)) return value;
+      return "#";
+    }
+
+    function cardHTML(item){
+      const title = item.title || "Untitled";
+      const price = item.price || "See price on Amazon";
+      const img = item.image || "";
+      const url = safeUrl(item.url);
+      const published = [item.publishDay, item.publishTime].filter(Boolean).join(" • ");
+
+      return `
+        <article class="card">
+          <div class="thumb">
+            ${
+              img
+                ? `<img src="${escapeHtml(img)}" alt="${escapeHtml(title)}" loading="lazy" onerror="this.style.display='none'; this.parentNode.insertAdjacentHTML('beforeend','<div class=&quot;thumbFallback&quot;>No image<br>available</div>')">`
+                : `<div class="thumbFallback">No image<br>available</div>`
+            }
+          </div>
+
+          <div class="meta">
+            <p class="title" title="${escapeHtml(title)}">${escapeHtml(title)}</p>
+            <p class="price">${escapeHtml(price)}</p>
+            <p class="line" title="${escapeHtml(published || 'Updated via automation')}">${escapeHtml(published || "Updated via automation")}</p>
+          </div>
+
+          <a class="open" href="${escapeHtml(url)}" target="_blank" rel="nofollow sponsored noopener">
+            View on Amazon
+          </a>
+        </article>
+      `;
+    }
+
+    async function fetchSheetProducts(){
+      const res = await fetch(
+        SHEET_CSV_URL + (SHEET_CSV_URL.includes("?") ? "&" : "?") + "v=" + Date.now(),
+        { cache: "no-store" }
+      );
+
+      if (!res.ok) {
+        throw new Error(`Fetch failed: ${res.status} ${res.statusText}`);
+      }
+
+      const text = await res.text();
+      return parseCSV(text).map(normalizeProduct);
+    }
+
+    function filterProductsForCategory(catObj){
+      const query = $searchBox.value.trim().toLowerCase();
+
+      return ALL_PRODUCTS.filter(item => {
+        const statusOk = String(item.status || "").trim().toLowerCase() === "published";
+        const categorySlug = slugifyCategory(item.category || "");
+        const categoryOk = categorySlug === catObj.id;
+        const searchOk = !query || String(item.title || "").toLowerCase().includes(query);
+
+        return statusOk && categoryOk && searchOk;
+      });
+    }
+
+    function sortProducts(items){
+      const sort = $sortBy.value;
+
+      if (sort === "title-asc") {
+        return [...items].sort((a, b) => a.title.localeCompare(b.title));
+      }
+
+      if (sort === "title-desc") {
+        return [...items].sort((a, b) => b.title.localeCompare(a.title));
+      }
+
+      return items;
+    }
+
+    function renderCategory(catObj){
+      clearError();
+      $title.textContent = catObj.label;
+      $grid.innerHTML = "";
+      $empty.style.display = "none";
+
+      let items = filterProductsForCategory(catObj);
+      items = sortProducts(items);
+
+      if (!items.length){
+        $count.textContent = "(0)";
+        $empty.style.display = "block";
+        $statusText.textContent = "No matching products were found for this category with the current filters.";
+        return;
+      }
+
+      $count.textContent = `(${items.length})`;
+      $statusText.textContent = `${items.length} product${items.length > 1 ? "s" : ""} available in ${catObj.label}.`;
+      $grid.innerHTML = items.map(cardHTML).join("");
+    }
+
+    async function reloadDataAndRender(){
+      const c = getSelected();
+      clearError();
+      setLoading(true);
+
+      $title.textContent = c.label;
+      $count.textContent = "";
+      $grid.innerHTML = "";
+      $empty.style.display = "none";
+      $statusText.textContent = "Refreshing products from Google Sheets...";
+
+      try{
+        ALL_PRODUCTS = await fetchSheetProducts();
+        renderCategory(c);
+      } catch(err){
+        showError(
+          "❌ Unable to load the Google Sheet.\n\n" +
+          err.message +
+          "\n\nPlease check:\n" +
+          "- the CSV link is correct\n" +
+          "- the sheet is published to the web\n" +
+          "- the required columns exist: status, Category, image, url"
+        );
+        $statusText.textContent = "There was a problem loading products.";
+      } finally {
+        setLoading(false);
       }
     }
 
-    result.push(current);
-    return result;
-  }
+    function init(){
+      CATEGORIES.forEach(c => $cat.appendChild(makeOption(c)));
 
-  function parseCSV(text){
-    const lines = text
-      .replace(/\r\n/g, "\n")
-      .replace(/\r/g, "\n")
-      .split("\n")
-      .filter(line => line.trim() !== "");
+      const qs = new URLSearchParams(location.search);
+      const catParam = qs.get("cat");
+      const searchParam = qs.get("q");
+      const first = CATEGORIES.find(c => c.id === catParam) || CATEGORIES[0];
 
-    if (!lines.length) return [];
+      $cat.value = first.id;
+      if (searchParam) $searchBox.value = searchParam;
 
-    const headers = parseCSVLine(lines[0]).map(h => h.trim());
-
-    return lines.slice(1).map(line => {
-      const values = parseCSVLine(line);
-      const obj = {};
-      headers.forEach((header, i) => {
-        obj[header] = (values[i] || "").trim();
+      $cat.addEventListener("change", () => {
+        const c = getSelected();
+        setQueryParam("cat", c.id);
+        renderCategory(c);
       });
-      return obj;
-    });
-  }
 
-  function cardHTML(item){
-    const title = item.pin_title || item.title || "Untitled";
-    const price = item.price || "";
-    const img = item.image || "";
-    const url = item.url || "#";
-    const published = [item.publish_day, item.publish_time].filter(Boolean).join(" • ");
+      $searchBox.addEventListener("input", () => {
+        setQueryParam("q", $searchBox.value.trim());
+        renderCategory(getSelected());
+      });
 
-    const lineParts = [];
-    if (price) lineParts.push(price);
-    if (published) lineParts.push(published);
+      $sortBy.addEventListener("change", () => {
+        renderCategory(getSelected());
+      });
 
-    return `
-      <div class="card">
-        <div class="thumb">
-          ${img ? `<img src="${escapeHtml(img)}" alt="${escapeHtml(title)}">` : ``}
-        </div>
-        <div class="meta">
-          <p class="title" title="${escapeHtml(title)}">${escapeHtml(title)}</p>
-          <p class="line" title="${escapeHtml(lineParts.join(" • "))}">${escapeHtml(lineParts.join(" • "))}</p>
-        </div>
-        <a class="open" href="${escapeHtml(url)}" target="_blank" rel="noopener">Open</a>
-      </div>
-    `;
-  }
+      $reloadBtn.addEventListener("click", () => {
+        reloadDataAndRender();
+      });
 
-  async function fetchSheetProducts(){
-    const res = await fetch(SHEET_CSV_URL + (SHEET_CSV_URL.includes("?") ? "&" : "?") + "v=" + Date.now(), {
-      cache: "no-store"
-    });
-
-    if (!res.ok) {
-      throw new Error(`Fetch failed: ${res.status} ${res.statusText}`);
-    }
-
-    const text = await res.text();
-    return parseCSV(text);
-  }
-
-  function filterProductsForCategory(catObj){
-    return ALL_PRODUCTS.filter(item => {
-      const statusOk = String(item.status || "").trim().toLowerCase() === "published";
-      const categorySlug = slugifyCategory(item.Category || item.category || "");
-      return statusOk && categorySlug === catObj.id;
-    });
-  }
-
-  function renderCategory(catObj){
-    clearError();
-    $title.textContent = catObj.label;
-    $grid.innerHTML = "";
-    $empty.style.display = "none";
-
-    const items = filterProductsForCategory(catObj);
-
-    if (!items.length){
-      $count.textContent = "(0)";
-      $empty.style.display = "block";
-      return;
-    }
-
-    $count.textContent = `(${items.length})`;
-    $grid.innerHTML = items.map(cardHTML).join("");
-  }
-
-  async function reloadDataAndRender(){
-    const c = getSelected();
-    clearError();
-    $title.textContent = c.label;
-    $count.textContent = "";
-    $grid.innerHTML = "";
-    $empty.style.display = "none";
-
-    try{
-      ALL_PRODUCTS = await fetchSheetProducts();
-      renderCategory(c);
-    } catch(err){
-      showError(
-        "❌ Impossible de charger Google Sheet.\n\n" +
-        err.message +
-        "\n\nVérifie :\n" +
-        "- que le lien CSV est correct\n" +
-        "- que la feuille est publiée sur le web\n" +
-        "- que les colonnes existent bien : status, Category, image, url"
-      );
-    }
-  }
-
-  function init(){
-    CATEGORIES.forEach(c => $cat.appendChild(makeOption(c)));
-
-    const qs = new URLSearchParams(location.search);
-    const catParam = qs.get("cat");
-    const first = CATEGORIES.find(c => c.id === catParam) || CATEGORIES[0];
-
-    $cat.value = first.id;
-
-    $cat.addEventListener("change", () => {
-      const c = getSelected();
-      setQueryCat(c.id);
-      renderCategory(c);
-    });
-
-    $reloadBtn.addEventListener("click", () => {
       reloadDataAndRender();
-    });
+    }
 
-    reloadDataAndRender();
-  }
-
-  init();
-</script>
+    init();
+  </script>
 </body>
 </html>
