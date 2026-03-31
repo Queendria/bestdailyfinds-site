@@ -4,7 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Best Daily Finds</title>
-  <meta name="description" content="Discover trending Amazon finds, gift ideas, home essentials, beauty picks, pet products, fitness gear, and travel must-haves." />
+  <meta
+    name="description"
+    content="Discover trending Amazon finds, gift ideas, home essentials, beauty picks, pet products, fitness gear, and travel must-haves."
+  />
   <style>
     :root {
       --bg: #fffaf7;
@@ -547,22 +550,11 @@
       { id: "gift-ideas-cool-finds", label: "Gift Ideas & Cool Finds" },
       { id: "home-organisation", label: "Home & Organisation" },
       { id: "kitchen-cooking-tools", label: "Kitchen & Cooking Tools" },
-      { id: "beauty-self-care", label: "beauty & Self Care" },
+      { id: "beauty-self-care", label: "Beauty & Self Care" },
       { id: "pet-products-accessories", label: "Pet Products & Accessories" },
       { id: "fitness-home-workout", label: "Fitness & Home Workout" },
       { id: "travel-outdoor", label: "Travel & Outdoor" }
     ];
-
-    const VALID_NICHES = {
-      "trending-products": "Trending Products",
-      "gift-ideas-cool-finds": "Gift Ideas & Cool Finds",
-      "home-organisation": "Home & Organisation",
-      "kitchen-cooking-tools": "Kitchen & Cooking Tools",
-      "beauty-self-care": "beauty & Self care",
-      "pet-products-accessories": "Pet Products & Accessories",
-      "fitness-home-workout": "Fitness & home Workout",
-      "travel-outdoor": "Travel & outdoor"
-    };
 
     const $cat = document.getElementById("cat");
     const $grid = document.getElementById("grid");
@@ -624,15 +616,6 @@
         "\"": "&quot;",
         "'": "&#039;"
       }[m]));
-    }
-
-    function slugifyCategory(value) {
-      return String(value || "")
-        .trim()
-        .toLowerCase()
-        .replace(/&/g, "and")
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/^-+|-+$/g, "");
     }
 
     function parseCSV(text) {
@@ -706,7 +689,43 @@
       return `$${num.toFixed(2)}`;
     }
 
+    function normalizeCategory(value) {
+      return String(value || "")
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, " ")
+        .replace(/\band\b/g, "&");
+    }
+
+    function canonicalCategoryLabel(value) {
+      const v = normalizeCategory(value);
+
+      if (v === "trending products") return "Trending Products";
+      if (v === "gift ideas & cool finds") return "Gift Ideas & Cool Finds";
+      if (v === "home & organisation") return "Home & Organisation";
+      if (v === "kitchen & cooking tools") return "Kitchen & Cooking Tools";
+      if (v === "beauty & self care") return "Beauty & Self Care";
+      if (v === "pet products & accessories") return "Pet Products & Accessories";
+      if (v === "fitness & home workout") return "Fitness & Home Workout";
+      if (v === "travel & outdoor") return "Travel & Outdoor";
+
+      return String(value || "").trim();
+    }
+
+    function categoryToId(value) {
+      const label = canonicalCategoryLabel(value);
+      const found = CATEGORIES.find(c => c.label === label);
+      return found ? found.id : "";
+    }
+
     function normalizeProduct(item) {
+      const rawCategory =
+        item["board/niche"] ||
+        item["board"] ||
+        item["niche"] ||
+        item["category"] ||
+        "";
+
       return {
         title: item.pin_title || item.title || "Untitled",
         rawTitle: item.title || "",
@@ -715,7 +734,8 @@
         price: normalizePrice(item.price || ""),
         image: item.image || "",
         url: item.url || "#",
-        category: (item["board/niche"] || "").trim(),
+        category: canonicalCategoryLabel(rawCategory),
+        categoryId: categoryToId(rawCategory),
         status: (item.status || "").trim().toLowerCase(),
         publishDay: item.publish_day || "",
         publishTime: item.publish_time || "",
@@ -748,7 +768,9 @@
       const img = item.image || "";
       const url = addAffiliateTag(item.url);
       const published = [item.publishDay, item.publishTime].filter(Boolean).join(" • ");
-      const showPriceDrop = String(item.priceChanged || "").toLowerCase() === "true" || String(item.priceChanged || "") === "1";
+      const showPriceDrop =
+        String(item.priceChanged || "").toLowerCase() === "true" ||
+        String(item.priceChanged || "") === "1";
 
       return `
         <article class="card">
@@ -831,8 +853,7 @@
 
       return ALL_PRODUCTS.filter(item => {
         const statusOk = item.status === "published";
-        const categorySlug = slugifyCategory(item.category);
-        const categoryOk = categorySlug === catObj.id && !!VALID_NICHES[categorySlug];
+        const categoryOk = item.categoryId === catObj.id;
 
         const searchableText = [
           item.title || "",
@@ -917,13 +938,10 @@
 
         console.log("ALL_PRODUCTS", ALL_PRODUCTS);
         console.log("Published", ALL_PRODUCTS.filter(x => x.status === "published"));
-        console.log("Published categories", [
-          ...new Set(
-            ALL_PRODUCTS
-              .filter(x => x.status === "published")
-              .map(x => x.category)
-          )
-        ]);
+        console.log(
+          "Published categories",
+          [...new Set(ALL_PRODUCTS.filter(x => x.status === "published").map(x => x.category))]
+        );
 
         renderCategory(c);
       } catch (err) {
